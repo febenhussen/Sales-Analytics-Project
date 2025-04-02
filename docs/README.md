@@ -1,4 +1,4 @@
-# Sales Performance Analysis of Global Customers for 2021-2024 in Excel
+# Sales Performance Analysis of Global Customers for 2021-2024 
 ## Project Overview
 The aim of this project is to analyze the sales performance of global customers for 2021-2024 in order to provide data-driven insights for optimizing sales strategies, improving customer retention, and forecasting demand. The data is analyzed using Power Query, Pivot Tables, and Power Pivot. It uses the data to provide insights into customer behavior, market trends, and product performance.
 
