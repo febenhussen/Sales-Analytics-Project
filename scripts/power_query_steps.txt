@@ -1,0 +1,103 @@
+# Customer Table 
+let
+    Source = Data,
+    #"G:\My Drive\Careers\2025\Projects\Excel P1\Data\_Customer xlsx" = Source{[#"Folder Path"="G:\My Drive\Careers\2025\Projects\Excel P1\Data\",Name="Customer.xlsx"]}[Content],
+    #"Imported Excel Workbook" = Excel.Workbook(#"G:\My Drive\Careers\2025\Projects\Excel P1\Data\_Customer xlsx"),
+    #"Removed Columns" = Table.RemoveColumns(#"Imported Excel Workbook",{"Name", "Item", "Kind", "Hidden"}),
+    #"Expanded Customer Data" = Table.ExpandTableColumn(#"Removed Columns", "Data", {"Column1", "Column2", "Column3", "Column4"}, {"Data.Column1", "Data.Column2", "Data.Column3", "Data.Column4"}),
+    #"Promoted Headers" = Table.PromoteHeaders(#"Expanded Customer Data", [PromoteAllScalars=true]),
+    #"Changed Customer_ID Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"customer_ID", Int64.Type}, {"Customer_name", type text}, {"market", type text}, {"platform", type text}}),
+    #"Removed Duplicates of Customer_ID" = Table.Distinct(#"Changed Customer_ID Type"),
+    #"Replaced Errors" = Table.ReplaceErrorValues(#"Removed Duplicates of Customer_ID", {{"Customer_name", "N/A"}}),
+    #"Filtered Rows" = Table.SelectRows(#"Replaced Errors", each true),
+    #"Renamed Columns Headers" = Table.RenameColumns(#"Filtered Rows",{{"customer_ID", "Customer_ID"}, {"market", "Market"}, {"platform", "Platform"}})
+in
+    #"Renamed Columns Headers"
+
+
+# Market Table
+let
+    Source = Data,
+    #"G:\My Drive\Careers\2025\Projects\Excel P1\Data\_Market xlsx" = Source{[#"Folder Path"="G:\My Drive\Careers\2025\Projects\Excel P1\Data\",Name="Market.xlsx"]}[Content],
+    #"Imported Excel Workbook" = Excel.Workbook(#"G:\My Drive\Careers\2025\Projects\Excel P1\Data\_Market xlsx"),
+    #"Removed Columns" = Table.RemoveColumns(#"Imported Excel Workbook",{"Name", "Item", "Kind", "Hidden"}),
+    #"Expanded Date Data" = Table.ExpandTableColumn(#"Removed Columns", "Data", {"Column1", "Column2"}, {"Data.Column1", "Data.Column2"}),
+    #"Removed Market Duplicates" = Table.Distinct(#"Expanded Date Data"),
+    #"Promoted First Row to Headers" = Table.PromoteHeaders(#"Removed Market Duplicates", [PromoteAllScalars=true])
+in
+    #"Promoted First Row to Headers"
+
+
+# Product Table
+let
+    Source = Data,
+    #"G:\My Drive\Careers\2025\Projects\Excel P1\Data\_Product xlsx" = Source{[#"Folder Path"="G:\My Drive\Careers\2025\Projects\Excel P1\Data\",Name="Product.xlsx"]}[Content],
+    #"Imported Excel Workbook" = Excel.Workbook(#"G:\My Drive\Careers\2025\Projects\Excel P1\Data\_Product xlsx"),
+    #"Removed Columns" = Table.RemoveColumns(#"Imported Excel Workbook",{"Name", "Item", "Kind", "Hidden"}),
+    #"Expanded Data" = Table.ExpandTableColumn(#"Removed Columns", "Data", {"Column1", "Column2", "Column3", "Column4"}, {"Data.Column1", "Data.Column2", "Data.Column3", "Data.Column4"}),
+    #"Promoted First Row to Headers" = Table.PromoteHeaders(#"Expanded Data", [PromoteAllScalars=true]),
+    #"Changed Product_ID Type" = Table.TransformColumnTypes(#"Promoted First Row to Headers",{{"product_ID", Int64.Type}, {"division", type text}, {"category", type text}, {"product_type", type text}}),
+    #"Removed Product_ID Duplicates" = Table.Distinct(#"Changed Product_ID Type"),
+    #"Split product_type Column by Delimiter" = Table.SplitColumn(#"Removed Product_ID Duplicates", "product_type", Splitter.SplitTextByEachDelimiter({" "}, QuoteStyle.Csv, true), {"product_type.1", "product_type.2"}),
+    #"Changed Type1" = Table.TransformColumnTypes(#"Split product_type Column by Delimiter",{{"product_type.1", type text}, {"product_type.2", type text}}),
+    #"Removed Uneeded product_type Columns" = Table.RemoveColumns(#"Changed Type1",{"product_type.1"}),
+    #"Renamed product_type Columns" = Table.RenameColumns(#"Removed Uneeded product_type Columns",{{"product_type.2", "Product_Type"}, {"category", "Category"}, {"division", "Division"}, {"product_ID", "Product_ID"}})
+in
+    #"Renamed product_type Columns"
+
+
+# Monthly Net Sales Table
+let
+    Source = Data,
+    #"G:\My Drive\Careers\2025\Projects\Excel P1\Data\_Monthly_Net_Sales xlsx" = Source{[#"Folder Path"="G:\My Drive\Careers\2025\Projects\Excel P1\Data\",Name="Monthly_Net_Sales.xlsx"]}[Content],
+    #"Imported Excel Workbook" = Excel.Workbook(#"G:\My Drive\Careers\2025\Projects\Excel P1\Data\_Monthly_Net_Sales xlsx"),
+    #"Removed Columns" = Table.RemoveColumns(#"Imported Excel Workbook",{"Name", "Item", "Kind", "Hidden"}),
+    #"Expanded Data" = Table.ExpandTableColumn(#"Removed Columns", "Data", {"Column1", "Column2", "Column3", "Column4", "Column5"}, {"Data.Column1", "Data.Column2", "Data.Column3", "Data.Column4", "Data.Column5"}),
+    #"Promoted First Row to Headers" = Table.PromoteHeaders(#"Expanded Data", [PromoteAllScalars=true]),
+    #"Changed Date column Type" = Table.TransformColumnTypes(#"Promoted First Row to Headers",{{"date", type datetime}, {"product_ID", Int64.Type}, {"customer_ID", Int64.Type}, {"Qty", Int64.Type}, {"Net_sales", type number}}),
+    #"Sorted Date Column by descending" = Table.Sort(#"Changed Date column Type",{{"date", Order.Descending}}),
+    #"Removed Time from Date Column" = Table.TransformColumnTypes(#"Sorted Date Column by descending",{{"date", type date}}),
+    #"Sorted Date Column by Acending" = Table.Sort(#"Removed Time from Date Column",{{"date", Order.Ascending}}),
+    #"Renamed Columns" = Table.RenameColumns(#"Sorted Date Column by Acending",{{"date", "Date"}, {"product_ID", "Product_ID"}, {"customer_ID", "Customer_ID"}}),
+    #"Merged Queries Customer table with Monthly net sales" = Table.NestedJoin(#"Renamed Columns", {"Customer_ID"}, Customer, {"Customer_ID"}, "Customer", JoinKind.LeftOuter),
+    #"Expanded Market Column from Customer table" = Table.ExpandTableColumn(#"Merged Queries Customer table with Monthly net sales", "Customer", {"Market"}, {"Customer.Market"}),
+    #"Renamed Selected Columns" = Table.RenameColumns(#"Expanded Market Column from Customer table",{{"Customer.Market", "Market"}}),
+    #"Filtered Rows" = Table.SelectRows(#"Renamed Selected Columns", each true)
+in
+    #"Filtered Rows"
+
+
+# Date Table
+let
+    Source = {Number.From(#date(2021,1,31))..Number.From(#date(2024,1,31))},
+    #"Converted to Table" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+    #"Changed Type" = Table.TransformColumnTypes(#"Converted to Table",{{"Column1", type date}}),
+    #"Inserted Start of Month" = Table.AddColumn(#"Changed Type", "Start of Month", each Date.StartOfMonth([Column1]), type date),
+    #"Inserted Year" = Table.AddColumn(#"Inserted Start of Month", "Year", each Date.Year([Start of Month]), Int64.Type),
+    #"Changed Type for Year Column" = Table.TransformColumnTypes(#"Inserted Year",{{"Year", type text}}),
+    #"Renamed Date Column" = Table.RenameColumns(#"Changed Type for Year Column",{{"Column1", "date"}, {"Start of Month", "month"}, {"Year", "year"}}),
+    #"Added Custom calculating Fiscal month" = Table.AddColumn(#"Renamed Date Column", "Custom", each Date.AddMonths([month],4)),
+    #"Added Custom FY Column" = Table.AddColumn(#"Added Custom calculating Fiscal month", "FY", each Date.Year([Custom])),
+    #"Sorted Rows" = Table.Sort(#"Added Custom FY Column",{{"FY", Order.Ascending}}),
+    #"Filtered Rows" = Table.SelectRows(#"Sorted Rows", each true),
+    #"Removed Unwanted Columns" = Table.RemoveColumns(#"Filtered Rows",{"year", "Custom"}),
+    #"Sorted Date Column" = Table.Sort(#"Removed Unwanted Columns",{{"FY", Order.Ascending}, {"date", Order.Ascending}}),
+    #"Renamed Columns" = Table.RenameColumns(#"Sorted Date Column",{{"date", "Date"}, {"month", "Month"}}),
+    #"Added Custom Text of FM-FY" = Table.AddColumn(#"Renamed Columns", "Custom", each Text.Proper(Date.ToText([Date], "MMMM yyyy"))),
+    #"Renamed Columns Month FY" = Table.RenameColumns(#"Added Custom Text of FM-FY",{{"Custom", "Month FY"}}),
+    #"Replaced Value-Shortened January" = Table.ReplaceValue(#"Renamed Columns Month FY","January ","Jan",Replacer.ReplaceText,{"Month FY"}),
+    #"Replaced Value-Shortened February" = Table.ReplaceValue(#"Replaced Value-Shortened January","February ","Feb",Replacer.ReplaceText,{"Month FY"}),
+    #"Replaced Value-Shortened March" = Table.ReplaceValue(#"Replaced Value-Shortened February","March ","Mar",Replacer.ReplaceText,{"Month FY"}),
+    #"Replaced Value-Shortened April" = Table.ReplaceValue(#"Replaced Value-Shortened March","April ","Apr",Replacer.ReplaceText,{"Month FY"}),
+    #"Replaced Value-Shortened May" = Table.ReplaceValue(#"Replaced Value-Shortened April","May ","May",Replacer.ReplaceText,{"Month FY"}),
+    #"Replaced Value-Shortened June" = Table.ReplaceValue(#"Replaced Value-Shortened May","June ","Jun",Replacer.ReplaceText,{"Month FY"}),
+    #"Replaced Value-Shortened July" = Table.ReplaceValue(#"Replaced Value-Shortened June","July ","Jul",Replacer.ReplaceText,{"Month FY"}),
+    #"Replaced Value-Shortened August" = Table.ReplaceValue(#"Replaced Value-Shortened July","August ","Aug",Replacer.ReplaceText,{"Month FY"}),
+    #"Replaced Value-Shortened September" = Table.ReplaceValue(#"Replaced Value-Shortened August","September ","Sep",Replacer.ReplaceText,{"Month FY"}),
+    #"Replaced Value-Shortened October" = Table.ReplaceValue(#"Replaced Value-Shortened September","October ","Oct",Replacer.ReplaceText,{"Month FY"}),
+    #"Replaced Value-Shortened November" = Table.ReplaceValue(#"Replaced Value-Shortened October","November ","Nov",Replacer.ReplaceText,{"Month FY"}),
+    #"Replaced Value-Shortened December" = Table.ReplaceValue(#"Replaced Value-Shortened November","December ","Dec",Replacer.ReplaceText,{"Month FY"})
+in
+    #"Replaced Value-Shortened December"
+
+    

@@ -6,6 +6,7 @@ The aim of this project is to analyze the sales performance of global customers 
 The dataset used for this project mainly contains sales transaction records from January 2021 to December 2024. The data was sourced from AI as a sample data and consisted of at least 5 tables including information about Customers, Market, Product, Date, and Monthly Net Sales.
 
 ![Table](https://github.com/user-attachments/assets/64bf6389-a7b2-423b-bd2b-9eaae8c7bc1a)
+
 ## 🛠 Tools & Technologies Used
 - **Microsoft Excel** (Power Query, Pivot Tables, Power Pivot)
 
