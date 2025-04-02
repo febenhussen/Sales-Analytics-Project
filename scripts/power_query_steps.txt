@@ -1,8 +1,8 @@
 # Customer Table 
 let
     Source = Data,
-    #"G:\My Drive\Careers\2025\Projects\Excel P1\Data\_Customer xlsx" = Source{[#"Folder Path"="G:\My Drive\Careers\2025\Projects\Excel P1\Data\",Name="Customer.xlsx"]}[Content],
-    #"Imported Excel Workbook" = Excel.Workbook(#"G:\My Drive\Careers\2025\Projects\Excel P1\Data\_Customer xlsx"),
+    #"G:\Data\_Customer xlsx" = Source{[#"Folder Path"="G:\Data\",Name="Customer.xlsx"]}[Content],
+    #"Imported Excel Workbook" = Excel.Workbook(#"G:\Data\_Customer xlsx"),
     #"Removed Columns" = Table.RemoveColumns(#"Imported Excel Workbook",{"Name", "Item", "Kind", "Hidden"}),
     #"Expanded Customer Data" = Table.ExpandTableColumn(#"Removed Columns", "Data", {"Column1", "Column2", "Column3", "Column4"}, {"Data.Column1", "Data.Column2", "Data.Column3", "Data.Column4"}),
     #"Promoted Headers" = Table.PromoteHeaders(#"Expanded Customer Data", [PromoteAllScalars=true]),
@@ -18,8 +18,8 @@ in
 # Market Table
 let
     Source = Data,
-    #"G:\My Drive\Careers\2025\Projects\Excel P1\Data\_Market xlsx" = Source{[#"Folder Path"="G:\My Drive\Careers\2025\Projects\Excel P1\Data\",Name="Market.xlsx"]}[Content],
-    #"Imported Excel Workbook" = Excel.Workbook(#"G:\My Drive\Careers\2025\Projects\Excel P1\Data\_Market xlsx"),
+    #"G:\Data\_Market xlsx" = Source{[#"Folder Path"="G:\Data\",Name="Market.xlsx"]}[Content],
+    #"Imported Excel Workbook" = Excel.Workbook(#"G:\Data\_Market xlsx"),
     #"Removed Columns" = Table.RemoveColumns(#"Imported Excel Workbook",{"Name", "Item", "Kind", "Hidden"}),
     #"Expanded Date Data" = Table.ExpandTableColumn(#"Removed Columns", "Data", {"Column1", "Column2"}, {"Data.Column1", "Data.Column2"}),
     #"Removed Market Duplicates" = Table.Distinct(#"Expanded Date Data"),
@@ -31,8 +31,8 @@ in
 # Product Table
 let
     Source = Data,
-    #"G:\My Drive\Careers\2025\Projects\Excel P1\Data\_Product xlsx" = Source{[#"Folder Path"="G:\My Drive\Careers\2025\Projects\Excel P1\Data\",Name="Product.xlsx"]}[Content],
-    #"Imported Excel Workbook" = Excel.Workbook(#"G:\My Drive\Careers\2025\Projects\Excel P1\Data\_Product xlsx"),
+    #"G:\Data\_Product xlsx" = Source{[#"Folder Path"="G:\Data\",Name="Product.xlsx"]}[Content],
+    #"Imported Excel Workbook" = Excel.Workbook(#"G:\Data\_Product xlsx"),
     #"Removed Columns" = Table.RemoveColumns(#"Imported Excel Workbook",{"Name", "Item", "Kind", "Hidden"}),
     #"Expanded Data" = Table.ExpandTableColumn(#"Removed Columns", "Data", {"Column1", "Column2", "Column3", "Column4"}, {"Data.Column1", "Data.Column2", "Data.Column3", "Data.Column4"}),
     #"Promoted First Row to Headers" = Table.PromoteHeaders(#"Expanded Data", [PromoteAllScalars=true]),
@@ -49,8 +49,8 @@ in
 # Monthly Net Sales Table
 let
     Source = Data,
-    #"G:\My Drive\Careers\2025\Projects\Excel P1\Data\_Monthly_Net_Sales xlsx" = Source{[#"Folder Path"="G:\My Drive\Careers\2025\Projects\Excel P1\Data\",Name="Monthly_Net_Sales.xlsx"]}[Content],
-    #"Imported Excel Workbook" = Excel.Workbook(#"G:\My Drive\Careers\2025\Projects\Excel P1\Data\_Monthly_Net_Sales xlsx"),
+    #"G:Data\_Monthly_Net_Sales xlsx" = Source{[#"Folder Path"="G:\Data\",Name="Monthly_Net_Sales.xlsx"]}[Content],
+    #"Imported Excel Workbook" = Excel.Workbook(#"G:\Data\_Monthly_Net_Sales xlsx"),
     #"Removed Columns" = Table.RemoveColumns(#"Imported Excel Workbook",{"Name", "Item", "Kind", "Hidden"}),
     #"Expanded Data" = Table.ExpandTableColumn(#"Removed Columns", "Data", {"Column1", "Column2", "Column3", "Column4", "Column5"}, {"Data.Column1", "Data.Column2", "Data.Column3", "Data.Column4", "Data.Column5"}),
     #"Promoted First Row to Headers" = Table.PromoteHeaders(#"Expanded Data", [PromoteAllScalars=true]),
@@ -100,4 +100,3 @@ let
 in
     #"Replaced Value-Shortened December"
 
-    
